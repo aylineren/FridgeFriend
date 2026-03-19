@@ -4,6 +4,12 @@ Autors: Ailine Erena, 12.B klase
 
 ---
 
+1. POSMA ATSKAITE: https://docs.google.com/document/d/18KIzGt6LViMp8-FTW1ae4AYCkutLShjrLp9XqhYPvl8/edit
+IZSTRĀDES APRAKSTS: https://docs.google.com/document/d/1aupAsq8I9Oz1zdjv2Tr4YIPgNXj7zffUED_OIflv7Wc/edit
+PREZENTĀCIJA:
+PORTFOLIO:
+
+
 ## Projekta struktūra
 
 ```
