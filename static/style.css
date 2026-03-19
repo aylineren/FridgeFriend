@@ -496,3 +496,50 @@ footer {
   height: 100%;
   object-fit: cover;
 }
+
+/* Dark mode fixes */
+.ff-orange-card {
+  background: var(--ff-orange-pale);
+}
+
+[data-bs-theme="dark"] .ff-orange-card {
+  background: #2e2a20;
+}
+
+[data-bs-theme="dark"] .ff-orange-card .text-muted {
+  color: #6c757d;
+}
+
+.ff-green-pale-bg {
+  background: var(--ff-green-pale);
+  border: 1.5px solid #c5d9c5;
+}
+
+[data-bs-theme="dark"] .ff-green-pale-bg {
+  background: #1e2820;
+  border-color: #2e3830;
+}
+
+[data-bs-theme="dark"] .ff-green-pale-bg .text-muted {
+  color: #6c757d;
+}
+
+.ff-green-pale-card {
+  background: var(--ff-green-pale);
+}
+
+[data-bs-theme="dark"] .ff-green-pale-card {
+  background: #1e2820;
+}
+
+[data-bs-theme="dark"] .ff-green-pale-card .text-muted {
+  color: #6c757d;
+}
+
+[data-bs-theme="dark"] .ff-green-text {
+  color: #7ab77a !important;
+}
+
+[data-bs-theme="dark"] .ff-orange-text {
+  color: #ffb366 !important;
+}

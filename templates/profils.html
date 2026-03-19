@@ -88,7 +88,7 @@
 
     <!-- konta info -->
     <div class="col-12">
-      <div class="card border-0" style="background:var(--ff-green-pale)">
+      <div class="card border-0 ff-green-pale-card">
         <div class="card-body small text-muted">
           <strong>Konts izveidots:</strong> {{ user.created_at[:10] if user.created_at else '—' }}<br>
           {% if user.is_admin %}<span class="badge badge-official ms-0 mt-1">🛡️ Administrators</span>{% endif %}

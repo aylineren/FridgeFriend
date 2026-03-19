@@ -14,7 +14,7 @@ fridgefriend/
 ├── static/
 │   └── style.css             Kopējie stili lapām
 └── templates/
-    ├── base.html             Pamatmalls (navigācija, footer)
+    ├── base.html             Pamats (navigācija, footer)
     ├── sakums.html           Sākumlapa
     ├── sastavdalas.html      Sastāvdaļu izvēlne
     ├── receptes.html         Meklēšanas rezultāti
