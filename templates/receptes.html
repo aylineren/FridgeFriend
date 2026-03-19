@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Receptes — FridgeFriend{% endblock %}
+{% block content %}
+<div class="container-xl py-5">
+  <div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+    <div>
+      <a href="{{ url_for('sastavdalas') }}" class="btn btn-outline-secondary btn-sm btn-pill mb-2">← Atpakaļ</a>
+      <h1 class="ff-display fw-bold mb-1">Tavas receptes 🍽️</h1>
+      <p class="text-muted">Atradām <strong>{{ results|length }}</strong> receptes, ko vari pagatavot!</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <button onclick="filterR('all',this)" class="btn btn-primary btn-sm btn-pill active-filter">Visas</button>
+      <button onclick="filterR('quick',this)" class="btn btn-outline-secondary btn-sm btn-pill">⚡ Ātras (≤10 min)</button>
+      <button onclick="filterR('cheap',this)" class="btn btn-outline-secondary btn-sm btn-pill">💰 Lētas (≤0.50€)</button>
+    </div>
+  </div>
+
+  {% if not results %}
+  <div class="text-center py-5">
+    <div style="font-size:4rem" class="mb-3">😔</div>
+    <h3 class="ff-display">Nav piemērotu recepšu</h3>
+    <p class="text-muted">Mēģini atzīmēt vairāk sastāvdaļu.</p>
+    <a href="{{ url_for('mann_nav') }}" class="btn btn-orange btn-pill mt-2">Skatīt lētākās receptes</a>
+  </div>
+  {% else %}
+  <div class="row g-4" id="results-grid">
+    {% set colors = ['green','orange','brown','blue','purple','green'] %}
+    {% for item in results %}
+    <div class="col-md-4 result-card" data-time="{{ item.recipe.time_minutes }}" data-cost="{{ item.recipe.cost_eur }}">
+      <a href="{{ url_for('recepte', recipe_id=item.recipe.id) }}?selected={{ selected|join(',') }}" class="card ff-recipe-card h-100">
+        <div class="ff-emoji-area {{ colors[loop.index0 % 6] }}">
+          {{ item.recipe.emoji }}
+          <span class="badge rounded-pill badge-match">✓ {{ item.match }}%</span>
+        </div>
+        <div class="card-body">
+          <h5 class="ff-display fw-bold mb-2">{{ item.recipe.name }}</h5>
+          <div class="d-flex flex-wrap gap-1 mb-2">
+            <span class="badge rounded-pill" style="background:var(--ff-green-pale);color:var(--ff-green)">⏱ {{ item.recipe.time_minutes }} min</span>
+            <span class="badge rounded-pill" style="background:var(--ff-orange-pale);color:var(--ff-orange)">💰 {{ "%.2f"|format(item.recipe.cost_eur) }}€</span>
+            <span class="badge rounded-pill" style="background:var(--ff-green-pale);color:var(--ff-green)">{{ item.recipe.difficulty }}</span>
+            {% if item.recipe.is_official == 0 %}
+            <span class="badge rounded-pill badge-user">👤 Lietotāja recepte</span>
+            {% endif %}
+          </div>
+          <p class="text-muted small mb-0">{{ item.recipe.description }}</p>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+let activeFilter = null;
+function filterR(type, btn) {
+  if (activeFilter) { activeFilter.classList.replace('btn-primary','btn-outline-secondary'); activeFilter.classList.remove('active-filter'); }
+  btn.classList.replace('btn-outline-secondary','btn-primary');
+  activeFilter = btn;
+  document.querySelectorAll('.result-card').forEach(c => {
+    let show = true;
+    if (type==='quick') show = parseInt(c.dataset.time) <= 10;
+    if (type==='cheap') show = parseFloat(c.dataset.cost) <= 0.50;
+    c.style.display = show ? '' : 'none';
+  });
+}
+</script>
+{% endblock %}

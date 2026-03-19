@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Admin panelis — FridgeFriend{% endblock %}
+{% block content %}
+<div class="container-xl py-4">
+  <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
+    <div>
+      <h1 class="ff-display fw-bold mb-0">🛡️ Administratora panelis</h1>
+      <p class="text-muted small mb-0">Pārvaldi lietotājus, receptes, komentārus un sastāvdaļas</p>
+    </div>
+    <div class="ms-auto d-flex gap-2">
+      <a href="{{ url_for('admin_jauna_recepte') }}" class="btn btn-primary btn-sm btn-pill"><i class="bi bi-plus-lg me-1"></i>Jauna recepte</a>
+      <a href="{{ url_for('sakums') }}" class="btn btn-outline-secondary btn-sm btn-pill">← Atpakaļ</a>
+    </div>
+  </div>
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3"><div class="card border-0 shadow-sm text-center p-3"><div class="ff-display fw-bold ff-green-text" style="font-size:2rem">{{ all_users|length }}</div><div class="small text-muted">Lietotāji</div></div></div>
+    <div class="col-6 col-md-3"><div class="card border-0 shadow-sm text-center p-3"><div class="ff-display fw-bold ff-green-text" style="font-size:2rem">{{ all_recipes|length }}</div><div class="small text-muted">Receptes</div></div></div>
+    <div class="col-6 col-md-3"><div class="card border-0 shadow-sm text-center p-3"><div class="ff-display fw-bold ff-orange-text" style="font-size:2rem">{{ pending|length }}</div><div class="small text-muted">Gaida apstiprin.</div></div></div>
+    <div class="col-6 col-md-3"><div class="card border-0 shadow-sm text-center p-3"><div class="ff-display fw-bold" style="font-size:2rem;color:#777">{{ all_comments|length }}</div><div class="small text-muted">Komentāri</div></div></div>
+  </div>
+  <ul class="nav nav-tabs" id="adminTabs">
+    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#pending">⏳ Gaidošās <span class="badge bg-warning text-dark ms-1">{{ pending|length }}</span></a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#recipes">🍽️ Receptes</a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#users">👥 Lietotāji</a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#comments">💬 Komentāri</a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#ingredients">🥕 Sastāvdaļas</a></li>
+  </ul>
+  <div class="tab-content border border-top-0 rounded-bottom p-4 bg-body">
+    <!-- PENDING -->
+    <div class="tab-pane fade show active" id="pending">
+      <h5 class="ff-display fw-bold mb-3">Lietotāju iesniegtas receptes</h5>
+      {% if not pending %}<p class="text-muted fst-italic">Nav gaidošu recepšu. 🎉</p>
+      {% else %}
+      <div class="table-responsive"><table class="table table-hover align-middle table-admin">
+        <thead class="table-light"><tr><th>Recepte</th><th>Autors</th><th>Iesniegts</th><th>Darbības</th></tr></thead>
+        <tbody>{% for r in pending %}<tr>
+          <td><span class="me-2">{{ r.emoji }}</span><strong>{{ r.name }}</strong><br><span class="text-muted small">{{ (r.description or '')[:60] }}…</span></td>
+          <td><a href="{{ url_for('publiskais_profils', username=r.creator_username) }}" class="text-decoration-none ff-green-text small">{{ r.creator_display or r.creator_username }}</a></td>
+          <td class="small text-muted">{{ (r.created_at or '')[:10] }}</td>
+          <td><div class="d-flex gap-2 flex-wrap">
+            <a href="{{ url_for('recepte', recipe_id=r.id) }}" class="btn btn-outline-secondary btn-sm btn-pill" target="_blank"><i class="bi bi-eye"></i></a>
+            <form method="POST" action="{{ url_for('admin_publicet', recipe_id=r.id) }}" class="m-0"><button type="submit" class="btn btn-success btn-sm btn-pill"><i class="bi bi-check-lg me-1"></i>Publicēt</button></form>
+            <form method="POST" action="{{ url_for('admin_dzest_recepti', recipe_id=r.id) }}" class="m-0"><button type="submit" class="btn btn-outline-danger btn-sm btn-pill" onclick="return confirm('Dzest?')"><i class="bi bi-trash3"></i></button></form>
+          </div></td>
+        </tr>{% endfor %}</tbody>
+      </table></div>{% endif %}
+    </div>
+    <!-- RECIPES -->
+    <div class="tab-pane fade" id="recipes">
+      <div class="d-flex align-items-center justify-content-between mb-3"><h5 class="ff-display fw-bold mb-0">Visas receptes</h5><a href="{{ url_for('admin_jauna_recepte') }}" class="btn btn-primary btn-sm btn-pill"><i class="bi bi-plus-lg me-1"></i>Jauna recepte</a></div>
+      <div class="table-responsive"><table class="table table-hover align-middle table-admin">
+        <thead class="table-light"><tr><th>Recepte</th><th>Tips</th><th>❤️</th><th>€</th><th>Darbības</th></tr></thead>
+        <tbody>{% for r in all_recipes %}<tr>
+          <td><span class="me-2">{{ r.emoji }}</span><strong>{{ r.name }}</strong></td>
+          <td>{% if r.is_official %}<span class="badge badge-official rounded-pill">Oficiāla</span>{% else %}<span class="badge badge-user rounded-pill">Lietotāja</span>{% endif %}</td>
+          <td><span class="text-danger small">❤️ {{ r.like_count }}</span></td>
+          <td class="small">{{ "%.2f"|format(r.cost_eur) }}€</td>
+          <td><div class="d-flex gap-1">
+            <a href="{{ url_for('recepte', recipe_id=r.id) }}" class="btn btn-outline-secondary btn-sm btn-pill"><i class="bi bi-eye"></i></a>
+            <a href="{{ url_for('rediget_recepti', recipe_id=r.id) }}" class="btn btn-outline-primary btn-sm btn-pill"><i class="bi bi-pencil"></i></a>
+            <form method="POST" action="{{ url_for('admin_dzest_recepti', recipe_id=r.id) }}" class="m-0"><button type="submit" class="btn btn-outline-danger btn-sm btn-pill" onclick="return confirm('Dzest?')"><i class="bi bi-trash3"></i></button></form>
+          </div></td>
+        </tr>{% endfor %}</tbody>
+      </table></div>
+    </div>
+    <!-- USERS -->
+    <div class="tab-pane fade" id="users">
+      <h5 class="ff-display fw-bold mb-3">Visi lietotāji</h5>
+      <div class="table-responsive"><table class="table table-hover align-middle table-admin">
+        <thead class="table-light"><tr><th>Lietotājs</th><th>E-pasts</th><th>Reģistrēts</th><th>Loma</th><th>Darbības</th></tr></thead>
+        <tbody>{% for u in all_users %}<tr>
+          <td><div class="d-flex align-items-center gap-2">
+            <div class="profile-avatar-sm">{% if u.profile_pic %}<img src="{{ url_for('static', filename='uploads/avatars/'+u.profile_pic) }}" alt="">{% else %}{{ (u.display_name or u.username)[0].upper() }}{% endif %}</div>
+            <div><div class="fw-semibold small">{{ u.display_name or u.username }}</div><div class="text-muted" style="font-size:.75rem">@{{ u.username }}</div></div>
+          </div></td>
+          <td class="small text-muted">{{ u.email }}</td>
+          <td class="small text-muted">{{ (u.created_at or '')[:10] }}</td>
+          <td>{% if u.is_admin %}<span class="badge badge-official rounded-pill">🛡️ Admin</span>{% else %}<span class="badge bg-secondary rounded-pill">Lietotājs</span>{% endif %}</td>
+          <td><div class="d-flex gap-1">
+            <a href="{{ url_for('publiskais_profils', username=u.username) }}" class="btn btn-outline-secondary btn-sm btn-pill"><i class="bi bi-person"></i></a>
+            {% if not u.is_admin %}<form method="POST" action="{{ url_for('admin_dzest_lietotaju', user_id=u.id) }}" class="m-0"><button type="submit" class="btn btn-outline-danger btn-sm btn-pill" onclick="return confirm('Dzest lietotaju?')"><i class="bi bi-trash3"></i></button></form>{% endif %}
+          </div></td>
+        </tr>{% endfor %}</tbody>
+      </table></div>
+    </div>
+    <!-- COMMENTS -->
+    <div class="tab-pane fade" id="comments">
+      <h5 class="ff-display fw-bold mb-3">Visi komentāri</h5>
+      {% if not all_comments %}<p class="text-muted fst-italic">Nav komentāru.</p>
+      {% else %}<div class="table-responsive"><table class="table table-hover align-middle table-admin">
+        <thead class="table-light"><tr><th>Autors</th><th>Recepte</th><th>Komentārs</th><th>Datums</th><th></th></tr></thead>
+        <tbody>{% for c in all_comments %}<tr>
+          <td class="small fw-semibold">{{ c.username or '—' }}</td>
+          <td><a href="{{ url_for('recepte', recipe_id=c.recipe_id) }}" class="small ff-green-text text-decoration-none">{{ c.recipe_name or '—' }}</a></td>
+          <td class="small text-muted" style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ c.content }}</td>
+          <td class="small text-muted">{{ (c.created_at or '')[:16] }}</td>
+          <td><form method="POST" action="{{ url_for('admin_dzest_komentaru', comment_id=c.id) }}" class="m-0"><button type="submit" class="btn btn-outline-danger btn-sm btn-pill" onclick="return confirm('Dzest?')"><i class="bi bi-trash3"></i></button></form></td>
+        </tr>{% endfor %}</tbody>
+      </table></div>{% endif %}
+    </div>
+    <!-- INGREDIENTS -->
+    <div class="tab-pane fade" id="ingredients">
+      <h5 class="ff-display fw-bold mb-3">Sastāvdaļas</h5>
+      <form method="POST" action="{{ url_for('admin_add_ingredient') }}" class="mb-4">
+        <div class="row g-2 align-items-end">
+          <div class="col-auto"><label class="form-label small">Emocijzīme</label><input type="text" name="emoji" class="form-control" style="width:60px;text-align:center;font-size:1.2rem" value="🥬" required></div>
+          <div class="col"><label class="form-label small">Nosaukums</label><input type="text" name="name" class="form-control" placeholder="piem. Burkāns" required></div>
+          <div class="col-md-3"><label class="form-label small">Kategorija</label><select name="category" class="form-select"><option>Olbaltumvielas</option><option>Dārzeņi</option><option>Pamatsastāvdaļas</option><option>Mērces</option><option>Cits</option></select></div>
+          <div class="col-auto"><button type="submit" class="btn btn-primary btn-pill">+ Pievienot</button></div>
+        </div>
+      </form>
+      <div class="table-responsive"><table class="table table-hover align-middle table-admin">
+        <thead class="table-light"><tr><th>Emocijzīme</th><th>Nosaukums</th><th>Kategorija</th><th></th></tr></thead>
+        <tbody>{% for ing in all_ings %}<tr>
+          <td style="font-size:1.3rem">{{ ing.emoji }}</td>
+          <td class="fw-semibold small">{{ ing.name }}</td>
+          <td><span class="badge bg-secondary rounded-pill small">{{ ing.category }}</span></td>
+          <td><form method="POST" action="{{ url_for('admin_dzest_sastavdalu', ing_id=ing.id) }}" class="m-0"><button type="submit" class="btn btn-outline-danger btn-sm btn-pill" onclick="return confirm('Dzest?')"><i class="bi bi-trash3"></i></button></form></td>
+        </tr>{% endfor %}</tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+const hash = window.location.hash;
+if (hash) { const t = document.querySelector(`[href="${hash}"]`); if (t) bootstrap.Tab.getOrCreateInstance(t).show(); }
+</script>
+{% endblock %}

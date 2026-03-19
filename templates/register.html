@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Reģistrēties — FridgeFriend{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width:460px">
+  <div class="card border-0 shadow">
+    <div class="card-body p-5">
+      <div class="text-center mb-4">
+        <div style="font-size:3rem">🌱</div>
+        <h2 class="ff-display fw-bold mt-2 mb-1">Izveidot kontu</h2>
+        <p class="text-muted small">Sāc ietaupīt pārtiku jau šodien!</p>
+      </div>
+      <form method="POST">
+        <div class="mb-3">
+          <label class="form-label small fw-semibold">Lietotājvārds</label>
+          <input type="text" name="username" class="form-control" placeholder="tavs_vards" required autofocus>
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-semibold">E-pasts</label>
+          <input type="email" name="email" class="form-control" placeholder="tavs@epasts.lv" required>
+        </div>
+        <div class="mb-2">
+          <label class="form-label small fw-semibold">Parole</label>
+          <div class="input-group">
+            <input type="password" name="password" id="reg-pw" class="form-control" placeholder="Min. 8 simboli" minlength="8" required>
+            <button class="btn btn-outline-secondary" type="button" onclick="togglePw('reg-pw','reg-eye')" title="Rādīt/slēpt paroli">
+              <i class="bi bi-eye" id="reg-eye"></i>
+            </button>
+            <button class="btn btn-outline-secondary" type="button" onclick="genPw()" title="Ģenerēt drošu paroli">
+              🎲
+            </button>
+          </div>
+        </div>
+        <div class="mb-4">
+          <div id="pw-strength" class="small text-muted"></div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-pill w-100 py-2 mb-3">
+          <i class="bi bi-person-plus me-2"></i>Izveidot kontu
+        </button>
+      </form>
+      <p class="text-center small text-muted mb-0">
+        Jau ir konts? <a href="{{ url_for('login') }}" class="ff-green-text fw-semibold text-decoration-none">Pieslēgties</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function togglePw(id, iconId) {
+  const el = document.getElementById(id);
+  const icon = document.getElementById(iconId);
+  el.type = el.type === 'password' ? 'text' : 'password';
+  icon.className = el.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash';
+}
+async function genPw() {
+  const res = await fetch('/api/generate-password?length=16');
+  const d = await res.json();
+  const el = document.getElementById('reg-pw');
+  el.type = 'text';
+  el.value = d.password;
+  document.getElementById('reg-eye').className = 'bi bi-eye-slash';
+  document.getElementById('pw-strength').innerHTML =
+    `<span class="text-success"><i class="bi bi-shield-check me-1"></i>Droša parole ģenerēta: <code>${d.password}</code> — saglabā to!</span>`;
+}
+document.getElementById('reg-pw').addEventListener('input', function() {
+  const v = this.value, el = document.getElementById('pw-strength');
+  if (!v) { el.innerHTML = ''; return; }
+  let score = 0;
+  if (v.length >= 8) score++;
+  if (v.length >= 12) score++;
+  if (/[A-Z]/.test(v)) score++;
+  if (/[0-9]/.test(v)) score++;
+  if (/[^a-zA-Z0-9]/.test(v)) score++;
+  const labels = ['','Ļoti vāja 🔴','Vāja 🟠','Vidēja 🟡','Stipra 🟢','Ļoti stipra ✅'];
+  el.innerHTML = `Paroles stiprums: <strong>${labels[score] || labels[1]}</strong>`;
+});
+</script>
+{% endblock %}

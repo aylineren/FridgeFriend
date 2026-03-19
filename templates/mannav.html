@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Man nav nekā — FridgeFriend{% endblock %}
+{% block content %}
+<div class="container-xl py-5 text-center">
+  <div style="font-size:5rem" class="mb-3">🪄</div>
+  <h1 class="ff-display fw-bold mb-2">Nav nekā? Nav problēmu!</h1>
+  <p class="lead text-muted fw-light mb-5 mx-auto" style="max-width:520px">Šeit ir lētākās un vienkāršākās receptes — visas izmaksā mazāk par 1€!</p>
+  <div class="row g-4 text-start mb-5">
+    {% set colors = ['green','orange','brown'] %}
+    {% for recipe in cheap_recipes %}
+    <div class="col-md-4">
+      <a href="{{ url_for('recepte', recipe_id=recipe.id) }}" class="card ff-recipe-card h-100">
+        <div class="ff-emoji-area {{ colors[loop.index0 % 3] }}">{{ recipe.emoji }}</div>
+        <div class="card-body">
+          <h5 class="ff-display fw-bold mb-1">{{ recipe.name }}</h5>
+          <div class="ff-display fw-bold ff-green-text mb-2" style="font-size:1.5rem">~{{ "%.2f"|format(recipe.cost_eur) }}€</div>
+          <span class="badge rounded-pill" style="background:var(--ff-green-pale);color:var(--ff-green)">⏱ {{ recipe.time_minutes }} min</span>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="p-4 rounded-4 text-start mx-auto mb-4" style="max-width:620px;background:var(--ff-green-pale);border:1.5px solid #c5d9c5">
+    <div class="small fw-bold text-uppercase ff-green-text mb-2">💡 Studenta iepirkuma saraksts</div>
+    <p class="text-muted mb-0">Reizi nedēļā nopērc: <strong>makaroni (~0.60€)</strong>, <strong>10 olas (~1.80€)</strong>, <strong>siers (~1.50€)</strong>, <strong>maize (~0.80€)</strong>. Kopā ~<strong>4.70€/nedēļā</strong> par 15+ maltītēm!</p>
+  </div>
+  <a href="{{ url_for('sastavdalas') }}" class="btn btn-outline-primary btn-pill px-4">← Tomēr man kaut kas ir</a>
+</div>
+{% endblock %}

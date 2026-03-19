@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}Mans profils — FridgeFriend{% endblock %}
+{% block content %}
+<div class="container-xl py-5" style="max-width:760px">
+  <h1 class="ff-display fw-bold mb-1">⚙️ Mans profils</h1>
+  <p class="text-muted mb-4">Rediģē savu profila informāciju</p>
+
+  <div class="row g-4">
+    <!-- Avatar -->
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h6 class="ff-display fw-bold mb-3">🖼️ Profila attēls</h6>
+          <div class="d-flex align-items-center gap-4">
+            <div class="profile-avatar-lg">
+              {% if user.profile_pic %}<img src="{{ url_for('static', filename='uploads/avatars/'+user.profile_pic) }}" alt="">
+              {% else %}{{ (user.display_name or user.username)[0].upper() }}{% endif %}
+            </div>
+            <form method="POST" enctype="multipart/form-data" class="flex-grow-1">
+              <input type="hidden" name="action" value="avatar">
+              <div class="mb-2"><input type="file" name="avatar" class="form-control" accept="image/*"></div>
+              <div class="small text-muted mb-2">PNG, JPG, GIF vai WebP. Maks. 5 MB.</div>
+              <button type="submit" class="btn btn-primary btn-sm btn-pill">Augšupielādēt</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profila info -->
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h6 class="ff-display fw-bold mb-3">👤 Profila informācija</h6>
+          <form method="POST">
+            <input type="hidden" name="action" value="profile">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small">Lietotājvārds</label>
+                <input type="text" name="username" class="form-control" value="{{ user.username }}" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small">E-pasts</label>
+                <input type="email" name="email" class="form-control" value="{{ user.email }}" required>
+              </div>
+              <div class="col-12">
+                <label class="form-label small">Parādāmais vārds</label>
+                <input type="text" name="display_name" class="form-control" value="{{ user.display_name or '' }}" placeholder="Kā tu vēlies, lai tevi sauc?">
+              </div>
+              <div class="col-12">
+                <label class="form-label small">Biogrāfija</label>
+                <textarea name="bio" class="form-control" rows="3" placeholder="Pastāsti par sevi...">{{ user.bio or '' }}</textarea>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-pill mt-3">💾 Saglabāt</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- parole -->
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h6 class="ff-display fw-bold mb-3">🔐 Mainīt paroli</h6>
+          <form method="POST">
+            <input type="hidden" name="action" value="password">
+            <div class="mb-3 position-relative">
+              <label class="form-label small">Pašreizējā parole</label>
+              <div class="input-group">
+                <input type="password" name="current_password" id="curr-pw" class="form-control" required>
+                <button class="btn btn-outline-secondary" type="button" onclick="togglePw('curr-pw','curr-eye')"><i id="curr-eye" class="bi bi-eye"></i></button>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small">Jaunā parole</label>
+              <div class="input-group">
+                <input type="password" name="new_password" id="new-pw" class="form-control" minlength="8" required>
+                <button class="btn btn-outline-secondary" type="button" onclick="togglePw('new-pw','new-eye')"><i id="new-eye" class="bi bi-eye"></i></button>
+                <button class="btn btn-outline-secondary" type="button" onclick="genPw('new-pw')" title="Ģenerēt drošu paroli">🎲</button>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-pill">Mainīt paroli</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- konta info -->
+    <div class="col-12">
+      <div class="card border-0" style="background:var(--ff-green-pale)">
+        <div class="card-body small text-muted">
+          <strong>Konts izveidots:</strong> {{ user.created_at[:10] if user.created_at else '—' }}<br>
+          {% if user.is_admin %}<span class="badge badge-official ms-0 mt-1">🛡️ Administrators</span>{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function togglePw(id, iconId) {
+  const el = document.getElementById(id);
+  const icon = document.getElementById(iconId);
+  if (el.type === 'password') { el.type = 'text'; icon.className = 'bi bi-eye-slash'; }
+  else { el.type = 'password'; icon.className = 'bi bi-eye'; }
+}
+async function genPw(inputId) {
+  const res = await fetch('/api/generate-password?length=16');
+  const d = await res.json();
+  document.getElementById(inputId).type = 'text';
+  document.getElementById(inputId).value = d.password;
+}
+</script>
+{% endblock %}

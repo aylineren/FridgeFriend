@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Mans ledusskapis — FridgeFriend{% endblock %}
+{% block content %}
+<div class="container-xl py-5">
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <h1 class="ff-display fw-bold mb-1">🧊 Mans ledusskapis</h1>
+      <p class="text-muted fw-light mb-4">Pievieno produktus un seko derīguma termiņiem!</p>
+
+      {% if not current_user %}
+      <div class="card border-0 shadow-sm text-center p-5">
+        <div style="font-size:3.5rem" class="mb-3">🔒</div>
+        <h3 class="ff-display fw-bold mb-2">Piesakies, lai izmantotu ledusskapi</h3>
+        <p class="text-muted mb-4">Izveido kontu un glabā savus produktus, saņem derīguma termiņa atgādinājumus.</p>
+        <div class="d-flex gap-2 justify-content-center">
+          <a href="{{ url_for('register') }}" class="btn btn-primary btn-pill px-4">Izveidot kontu</a>
+          <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-pill px-4">Pieslēgties</a>
+        </div>
+      </div>
+      {% else %}
+      <form method="POST" action="{{ url_for('add_fridge_item') }}" class="mb-4">
+        <div class="row g-2 align-items-end">
+          <div class="col-auto"><label class="form-label small">Emocijzīme</label><input type="text" name="emoji" class="form-control" value="🛒" style="width:60px;text-align:center;font-size:1.2rem"></div>
+          <div class="col"><label class="form-label small">Nosaukums</label><input type="text" name="name" class="form-control" placeholder="piem. tomāts, olas..." required></div>
+          <div class="col-auto"><label class="form-label small">Derīguma termiņš</label><input type="date" name="expiry" class="form-control" style="width:160px"></div>
+          <div class="col-auto"><button type="submit" class="btn btn-primary btn-pill">+ Pievienot</button></div>
+        </div>
+      </form>
+
+      <!-- Ātri pievienot -->
+      <div class="mb-4">
+        <div class="small fw-bold text-muted text-uppercase mb-2">⚡ Ātri pievienot:</div>
+        <div class="d-flex flex-wrap gap-2">
+          {% for emoji, name in [('🥚','Olas'),('🧀','Siers'),('🥛','Piens'),('🍞','Maize'),('🍅','Tomāts'),('🥔','Kartupelis'),('🧅','Sīpols'),('🍝','Makaroni')] %}
+          <form method="POST" action="{{ url_for('add_fridge_item') }}" class="m-0">
+            <input type="hidden" name="name" value="{{ name }}"><input type="hidden" name="emoji" value="{{ emoji }}">
+            <button type="submit" class="btn btn-outline-secondary btn-sm btn-pill">{{ emoji }} {{ name }}</button>
+          </form>
+          {% endfor %}
+        </div>
+      </div>
+
+      {% if fridge_items %}
+      <div class="row g-3">
+        {% for item in fridge_items %}
+        <div class="col-sm-6">
+          <div class="fridge-item">
+            <div class="d-flex align-items-center gap-3">
+              <span style="font-size:1.6rem">{{ item.emoji }}</span>
+              <div><div class="fw-semibold small">{{ item.ingredient_name }}</div>
+              <div class="text-muted" style="font-size:.75rem">{% if item.expiry_date %}📅 {{ item.expiry_date }}{% else %}Pievienots šodien{% endif %}</div></div>
+            </div>
+            <form method="POST" action="{{ url_for('delete_fridge_item', item_id=item.id) }}" class="m-0">
+              <button type="submit" class="btn btn-sm btn-outline-danger btn-pill">✕</button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="text-center py-5 card border-0">
+        <div style="font-size:3rem" class="mb-2">📭</div>
+        <h5 class="ff-display">Ledusskapis ir tukšs</h5>
+        <p class="text-muted">Pievieno savus produktus!</p>
+      </div>
+      {% endif %}
+      {% endif %}
+    </div>
+    <div class="col-lg-4">
+      {% if current_user and fridge_items %}
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body">
+          <h6 class="ff-display fw-bold mb-3">📊 Kopsavilkums</h6>
+          <div class="d-flex justify-content-between py-2 border-bottom"><span class="text-muted small">Kopā produktu</span><strong>{{ fridge_items|length }}</strong></div>
+          <div class="mt-3"><a href="{{ url_for('sastavdalas') }}" class="btn btn-primary btn-pill w-100">🍳 Gatavot ar šiem!</a></div>
+        </div>
+      </div>
+      {% endif %}
+      <div class="ff-sidebar-card">
+        <div class="small fw-bold text-uppercase ff-green-text mb-2">💡 Iknedēļas padoms</div>
+        <p class="small text-muted mb-0">Reizi nedēļā nopērc: makaroni, 10 olas, siers, maize. Ar šiem 4 produktiem var pagatavot vismaz <strong>15 dažādas maltītes</strong>!</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ profile_user.display_name or profile_user.username }} — FridgeFriend{% endblock %}
+{% block content %}
+<div class="container-xl py-5">
+  <div class="row g-5">
+    <div class="col-md-4 col-lg-3 text-center text-md-start">
+      <div class="profile-avatar-lg mx-auto mx-md-0 mb-3">
+        {% if profile_user.profile_pic %}<img src="{{ url_for('static', filename='uploads/avatars/'+profile_user.profile_pic) }}" alt="">
+        {% else %}{{ (profile_user.display_name or profile_user.username)[0].upper() }}{% endif %}
+      </div>
+      <h2 class="ff-display fw-bold mb-1">{{ profile_user.display_name or profile_user.username }}</h2>
+      <div class="text-muted small mb-2">@{{ profile_user.username }}</div>
+      {% if profile_user.is_admin %}<span class="badge badge-official mb-2">🛡️ Administrators</span>{% endif %}
+      {% if profile_user.bio %}<p class="text-muted small mt-2">{{ profile_user.bio }}</p>{% endif %}
+      <div class="text-muted" style="font-size:.75rem">Dalībnieks kopš {{ profile_user.created_at[:7] if profile_user.created_at else '—' }}</div>
+    </div>
+    <div class="col-md-8 col-lg-9">
+      <h4 class="ff-display fw-bold mb-3">Publicētās receptes ({{ user_recipes|length }})</h4>
+      {% if not user_recipes %}
+      <p class="text-muted fst-italic">Šim lietotājam vēl nav publicētu recepšu.</p>
+      {% else %}
+      <div class="row g-3">
+        {% for recipe in user_recipes %}
+        <div class="col-sm-6 col-lg-4">
+          <a href="{{ url_for('recepte', recipe_id=recipe.id) }}" class="card ff-recipe-card h-100">
+            <div class="ff-emoji-area green" style="height:100px;border-radius:.375rem .375rem 0 0;font-size:2.5rem">{{ recipe.emoji }}</div>
+            <div class="card-body p-3">
+              <div class="fw-bold small mb-1">{{ recipe.name }}</div>
+              <div class="d-flex gap-1 flex-wrap">
+                <span class="badge rounded-pill" style="background:var(--ff-green-pale);color:var(--ff-green);font-size:.7rem">⏱ {{ recipe.time_minutes }} min</span>
+                <span class="badge rounded-pill" style="background:var(--ff-orange-pale);color:var(--ff-orange);font-size:.7rem">❤️ {{ recipe.like_count }}</span>
+              </div>
+            </div>
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

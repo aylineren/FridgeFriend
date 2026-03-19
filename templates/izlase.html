@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Mana izlase — FridgeFriend{% endblock %}
+{% block content %}
+<div class="container-xl py-5">
+  <h1 class="ff-display fw-bold mb-1">🔖 Mana izlase</h1>
+  <p class="text-muted mb-4">Receptes, ko esi saglabājis.</p>
+  {% if not favorites %}
+  <div class="text-center py-5">
+    <div style="font-size:3.5rem" class="mb-3">🔖</div>
+    <h4 class="ff-display">Izlase ir tukša</h4>
+    <p class="text-muted">Pievienojiet receptes izlasei, noklikšķinot uz 🔖 receptes lapā.</p>
+    <a href="{{ url_for('sastavdalas') }}" class="btn btn-primary btn-pill mt-2">Atrast receptes</a>
+  </div>
+  {% else %}
+  <div class="row g-4">
+    {% set colors = ['green','orange','brown','blue','purple'] %}
+    {% for recipe in favorites %}
+    <div class="col-md-4 col-sm-6">
+      <a href="{{ url_for('recepte', recipe_id=recipe.id) }}" class="card ff-recipe-card h-100">
+        <div class="ff-emoji-area {{ colors[loop.index0 % 5] }}">{{ recipe.emoji }}
+          <span class="badge rounded-pill badge-match">❤️ {{ recipe.like_count }}</span>
+        </div>
+        <div class="card-body">
+          <h5 class="ff-display fw-bold mb-2">{{ recipe.name }}</h5>
+          <div class="d-flex flex-wrap gap-1">
+            <span class="badge rounded-pill" style="background:var(--ff-green-pale);color:var(--ff-green)">⏱ {{ recipe.time_minutes }} min</span>
+            <span class="badge rounded-pill" style="background:var(--ff-orange-pale);color:var(--ff-orange)">💰 {{ "%.2f"|format(recipe.cost_eur) }}€</span>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

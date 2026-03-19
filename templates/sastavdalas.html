@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Atrast recepti — FridgeFriend{% endblock %}
+{% block content %}
+<div class="container-xl py-5">
+<form method="POST" action="{{ url_for('receptes') }}">
+<div class="row g-4">
+  <div class="col-lg-8">
+    <h1 class="ff-display fw-bold mb-1">Ko tev ir ledusskapī?</h1>
+    <p class="text-muted fw-light mb-4">Atzīmē sastāvdaļas — mēs atradīsim receptes!</p>
+    {% for category, items in by_cat.items() %}
+    <div class="mb-4">
+      <div class="small fw-bold text-uppercase text-muted mb-3">
+        {% if category=='Olbaltumvielas' %}🥩{% elif category=='Dārzeņi' %}🥦{% elif category=='Pamatsastāvdaļas' %}🌾{% else %}🧂{% endif %} {{ category }}
+      </div>
+      <div class="row g-2">
+        {% for ing in items %}
+        <div class="col-6 col-sm-4 col-md-3">
+          <input type="checkbox" class="ing-checkbox" name="ingredients" value="{{ ing.name }}" id="ing-{{ ing.id }}" onchange="updateSidebar()">
+          <label class="ing-label w-100" for="ing-{{ ing.id }}">
+            <div class="ing-check">✓</div><span>{{ ing.emoji }}</span>{{ ing.name }}
+          </label>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary btn-lg btn-pill w-100 mt-2">
+      <i class="bi bi-search me-2"></i>Atrast receptes
+    </button>
+  </div>
+  <div class="col-lg-4">
+    <div class="sticky-top" style="top:88px">
+      <div class="card mb-3 border-0 shadow-sm">
+        <div class="card-body">
+          <h6 class="ff-display fw-bold mb-3">✅ Izvēlētās sastāvdaļas</h6>
+          <div id="selected-list" class="mb-3" style="min-height:50px">
+            <p class="text-muted small fst-italic mb-0">Vēl nekas nav atzīmēts...</p>
+          </div>
+          <button type="submit" class="btn btn-primary btn-pill w-100">🍳 Atrast receptes</button>
+        </div>
+      </div>
+      <div class="card border-0" style="background:var(--ff-orange-pale);">
+        <div class="card-body">
+          <h6 class="ff-display fw-bold mb-2" style="color:var(--ff-orange)">😅 Nav nekā?</h6>
+          <p class="small text-muted mb-3">Ja ledusskapī ir tukšs — rādīsim lētākās receptes.</p>
+          <a href="{{ url_for('mann_nav') }}" class="btn btn-orange btn-pill w-100">Rādīt lētākās receptes</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</form>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function updateSidebar() {
+  const checked = [...document.querySelectorAll('.ing-checkbox:checked')];
+  const list = document.getElementById('selected-list');
+  if (!checked.length) { list.innerHTML = '<p class="text-muted small fst-italic mb-0">Vēl nekas nav atzīmēts...</p>'; return; }
+  list.innerHTML = checked.map(cb => {
+    const lbl = document.querySelector('label[for="'+cb.id+'"]');
+    const txt = lbl ? lbl.textContent.replace('✓','').trim() : cb.value;
+    return `<span class="badge rounded-pill me-1 mb-1" style="background:var(--ff-green-pale);color:var(--ff-green)">${txt}</span>`;
+  }).join('');
+}
+</script>
+{% endblock %}

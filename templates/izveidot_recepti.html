@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}{% if recipe %}Rediģēt{% else %}Izveidot{% endif %} recepti — FridgeFriend{% endblock %}
+{% block content %}
+<div class="container-xl py-5" style="max-width:820px">
+  <h1 class="ff-display fw-bold mb-1">
+    {% if admin_mode %}🛡️ Jauna oficiālā recepte
+    {% elif recipe %}✏️ Rediģēt recepti
+    {% else %}🍽️ Izveidot recepti
+    {% endif %}
+  </h1>
+  <p class="text-muted mb-4">
+    {% if not admin_mode and not recipe %}Tava recepte būs redzama pēc administratora apstiprināšanas.{% endif %}
+  </p>
+
+  <form method="POST">
+    <!-- Pamatinformācija -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body">
+        <h6 class="ff-display fw-bold mb-3">📝 Pamatinformācija</h6>
+        <div class="row g-3">
+          <div class="col-md-1">
+            <label class="form-label small">Emocijzīme</label>
+            <input type="text" name="emoji" class="form-control text-center" style="font-size:1.4rem" value="{{ recipe.emoji if recipe else '🍽️' }}" required>
+          </div>
+          <div class="col-md-7">
+            <label class="form-label small">Receptes nosaukums *</label>
+            <input type="text" name="name" class="form-control" placeholder="piem. Siera omlete" value="{{ recipe.name if recipe else '' }}" required>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label small">Laiks (min) *</label>
+            <input type="number" name="time_minutes" class="form-control" min="1" value="{{ recipe.time_minutes if recipe else 15 }}" required>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label small">Cena (€) *</label>
+            <input type="number" name="cost_eur" class="form-control" step="0.01" min="0.01" value="{{ recipe.cost_eur if recipe else 1.00 }}" required>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small">Grūtības pakāpe</label>
+            <select name="difficulty" class="form-select">
+              {% for d in ['Viegli','Vidēji','Grūti'] %}
+              <option {% if recipe and recipe.difficulty==d %}selected{% endif %}>{{ d }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small">Porcijas</label>
+            <input type="text" name="serves" class="form-control" value="{{ recipe.serves if recipe else '1 porcija' }}">
+          </div>
+          <div class="col-md-12">
+            <label class="form-label small">Apraksts</label>
+            <input type="text" name="description" class="form-control" placeholder="Īss apraksts..." value="{{ recipe.description if recipe else '' }}">
+          </div>
+          <div class="col-md-12">
+            <label class="form-label small">💡 Padoms</label>
+            <input type="text" name="tip" class="form-control" placeholder="Kāds noderīgs padoms..." value="{{ recipe.tip if recipe else '' }}">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sastāvdaļas -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h6 class="ff-display fw-bold mb-0">🛒 Sastāvdaļas</h6>
+          <button type="button" class="btn btn-outline-primary btn-sm btn-pill" onclick="addIng()">+ Pievienot</button>
+        </div>
+        <div id="ing-list">
+          {% if r_ings %}
+          {% for i in r_ings %}
+          <div class="recipe-ing-row d-flex align-items-center gap-2">
+            <input type="text" name="ing_emoji[]" class="form-control" style="width:56px;text-align:center;font-size:1.1rem" value="{{ i.emoji }}" placeholder="🥕">
+            <input type="text" name="ing_name[]" class="form-control" placeholder="Nosaukums" value="{{ i.ingredient_name }}" required>
+            <input type="text" name="ing_amount[]" class="form-control" style="max-width:120px" placeholder="Daudzums" value="{{ i.amount }}">
+            <button type="button" class="btn btn-outline-danger btn-sm btn-pill flex-shrink-0" onclick="this.closest('.recipe-ing-row').remove()">✕</button>
+          </div>
+          {% endfor %}
+          {% else %}
+          <div class="recipe-ing-row d-flex align-items-center gap-2">
+            <input type="text" name="ing_emoji[]" class="form-control" style="width:56px;text-align:center;font-size:1.1rem" placeholder="🥕">
+            <input type="text" name="ing_name[]" class="form-control" placeholder="Nosaukums" required>
+            <input type="text" name="ing_amount[]" class="form-control" style="max-width:120px" placeholder="piem. 2 gab.">
+            <button type="button" class="btn btn-outline-danger btn-sm btn-pill flex-shrink-0" onclick="this.closest('.recipe-ing-row').remove()">✕</button>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Soļi -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h6 class="ff-display fw-bold mb-0">📋 Pagatavošanas soļi</h6>
+          <button type="button" class="btn btn-outline-primary btn-sm btn-pill" onclick="addStep()">+ Pievienot soli</button>
+        </div>
+        <div id="step-list">
+          {% if r_steps %}
+          {% for s in r_steps %}
+          <div class="recipe-step-row d-flex align-items-start gap-3">
+            <div class="step-num mt-1 flex-shrink-0">{{ s.step_number }}</div>
+            <textarea name="step_desc[]" class="form-control" rows="2" placeholder="Apraksti soli...">{{ s.description }}</textarea>
+            <button type="button" class="btn btn-outline-danger btn-sm btn-pill flex-shrink-0 mt-1" onclick="this.closest('.recipe-step-row').remove();renumberSteps()">✕</button>
+          </div>
+          {% endfor %}
+          {% else %}
+          <div class="recipe-step-row d-flex align-items-start gap-3">
+            <div class="step-num mt-1 flex-shrink-0">1</div>
+            <textarea name="step_desc[]" class="form-control" rows="2" placeholder="Apraksti pirmo soli..."></textarea>
+            <button type="button" class="btn btn-outline-danger btn-sm btn-pill flex-shrink-0 mt-1" onclick="this.closest('.recipe-step-row').remove();renumberSteps()">✕</button>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex gap-3">
+      <button type="submit" class="btn btn-primary btn-lg btn-pill px-5">
+        {% if recipe %}💾 Saglabāt izmaiņas{% else %}🚀 Iesniegt recepti{% endif %}
+      </button>
+      <a href="{{ url_for('admin_index') if admin_mode else url_for('manas_receptes') }}" class="btn btn-outline-secondary btn-lg btn-pill">Atcelt</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+let stepCount = document.querySelectorAll('.recipe-step-row').length;
+function addIng() {
+  document.getElementById('ing-list').insertAdjacentHTML('beforeend',`
+    <div class="recipe-ing-row d-flex align-items-center gap-2">
+      <input type="text" name="ing_emoji[]" class="form-control" style="width:56px;text-align:center;font-size:1.1rem" placeholder="🥕">
+      <input type="text" name="ing_name[]" class="form-control" placeholder="Nosaukums" required>
+      <input type="text" name="ing_amount[]" class="form-control" style="max-width:120px" placeholder="piem. 2 gab.">
+      <button type="button" class="btn btn-outline-danger btn-sm btn-pill flex-shrink-0" onclick="this.closest('.recipe-ing-row').remove()">✕</button>
+    </div>`);
+}
+function addStep() {
+  stepCount++;
+  document.getElementById('step-list').insertAdjacentHTML('beforeend',`
+    <div class="recipe-step-row d-flex align-items-start gap-3">
+      <div class="step-num mt-1 flex-shrink-0">${stepCount}</div>
+      <textarea name="step_desc[]" class="form-control" rows="2" placeholder="Apraksti soli..."></textarea>
+      <button type="button" class="btn btn-outline-danger btn-sm btn-pill flex-shrink-0 mt-1" onclick="this.closest('.recipe-step-row').remove();renumberSteps()">✕</button>
+    </div>`);
+}
+function renumberSteps() {
+  document.querySelectorAll('.recipe-step-row .step-num').forEach((el,i) => el.textContent = i+1);
+  stepCount = document.querySelectorAll('.recipe-step-row').length;
+}
+</script>
+{% endblock %}

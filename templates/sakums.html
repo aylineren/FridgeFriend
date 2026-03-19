@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}FridgeFriend — Gatavo ar to, kas ir mājās{% endblock %}
+{% block content %}
+
+<!-- hero -->
+<section class="ff-hero">
+  <div class="container-xl">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6">
+        <span class="badge bg-success-subtle text-success mb-3">🇱🇻 Latvijas studentiem</span>
+        <h1>Ko tu šodien <em>ēdīsi</em>?</h1>
+        <p class="lead text-muted mt-3 mb-4 fw-light">
+          Atver ledusskapi, atzīmē kas ir iekšā — un mēs atradīsim ko tu vari pagatavot. Vienkārši, ātri, lēti.
+        </p>
+        <div class="d-flex gap-3 flex-wrap">
+          <a href="{{ url_for('sastavdalas') }}" class="btn btn-primary btn-lg btn-pill px-4">
+            <i class="bi bi-search me-2"></i>Atrast recepti
+          </a>
+          <a href="{{ url_for('mann_nav') }}" class="btn btn-orange btn-lg btn-pill px-4">
+            😅 Man nav nekā
+          </a>
+        </div>
+      </div>
+      <div class="col-lg-6 d-none d-lg-block">
+        <div class="card shadow-sm border-0 mb-3" style="border-radius:20px">
+          <div class="card-body p-4">
+            <div class="small text-muted fw-bold text-uppercase ls-1 mb-3">🧊 Tavs ledusskapis</div>
+            <div class="mb-3">
+              {% for item in [('🥚','Olas'),('🧀','Siers'),('🍅','Tomāts'),('🧅','Sīpols'),('🥛','Piens')] %}
+              <span class="badge rounded-pill me-1 mb-1" style="background:var(--ff-green-pale);color:var(--ff-green);font-size:.85rem">{{ item[0] }} {{ item[1] }}</span>
+              {% endfor %}
+            </div>
+            <hr>
+            <div class="d-flex align-items-center gap-3 py-1 border-bottom">
+              <span style="font-size:1.8rem">🍳</span>
+              <div><div class="fw-bold small">Siera omlete</div><div class="text-muted" style="font-size:.75rem">⏱ 10 min · 💰 0.60€</div></div>
+            </div>
+            <div class="d-flex align-items-center gap-3 py-1">
+              <span style="font-size:1.8rem">🥗</span>
+              <div><div class="fw-bold small">Tomātu salāti</div><div class="text-muted" style="font-size:.75rem">⏱ 5 min · 💰 0.70€</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="card border-0 p-3 text-center" style="border-radius:16px;background:var(--ff-orange-pale);">
+          <div class="small fw-bold text-uppercase mb-1" style="color:var(--ff-orange);">💰 Ietaupīts</div>
+          <div class="ff-display fw-bold" style="font-size:2.2rem;color:var(--ff-orange)">~12€</div>
+          <div class="text-muted small">šomēnes</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- stats -->
+<div class="ff-stats">
+  <div class="container-xl">
+    <div class="row text-center g-4">
+      <div class="col-md-4"><div class="ff-stat-num">30+</div><div class="ff-stat-label">Vienkāršas receptes</div></div>
+      <div class="col-md-4"><div class="ff-stat-num">5 min</div><div class="ff-stat-label">Vidēji gatavošanas laiks</div></div>
+      <div class="col-md-4"><div class="ff-stat-num">€0</div><div class="ff-stat-label">Pilnīgi bezmaksas</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- populārākās receptes -->
+<div class="container-xl py-5">
+  <div class="small fw-bold text-uppercase ls-1 mb-1 ff-green-text">🔥 Studentu izlase</div>
+  <h2 class="ff-display fw-bold mb-1">Populārākās receptes</h2>
+  <p class="text-muted fw-light mb-4">Receptes ar visvairāk atzīmēm "Patīk"</p>
+
+  <div class="row g-4">
+    {% set colors = ['green','orange','brown'] %}
+    {% for recipe in recipes %}
+    <div class="col-md-4">
+      <a href="{{ url_for('recepte', recipe_id=recipe.id) }}" class="card ff-recipe-card h-100">
+        <div class="ff-emoji-area {{ colors[loop.index0 % 3] }}">
+          {{ recipe.emoji }}
+          <span class="badge rounded-pill badge-match">❤️ {{ recipe.like_count }}</span>
+        </div>
+        <div class="card-body">
+          <h5 class="ff-display fw-bold mb-2">{{ recipe.name }}</h5>
+          <div class="d-flex gap-2 flex-wrap mb-2">
+            <span class="badge rounded-pill" style="background:var(--ff-green-pale);color:var(--ff-green)">⏱ {{ recipe.time_minutes }} min</span>
+            <span class="badge rounded-pill" style="background:var(--ff-orange-pale);color:var(--ff-orange)">💰 {{ "%.2f"|format(recipe.cost_eur) }}€</span>
+            <span class="badge rounded-pill" style="background:var(--ff-green-pale);color:var(--ff-green)">{{ recipe.difficulty }}</span>
+          </div>
+          <p class="text-muted small mb-0">{{ recipe.description }}</p>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- footer -->
+  <div class="row mt-5">
+    <div class="col-12">
+      <div class="p-5 rounded-4 d-flex flex-wrap align-items-center justify-content-between gap-4" style="background:var(--ff-green-pale);border:1.5px solid #c5d9c5;">
+        <div>
+          <div class="small fw-bold text-uppercase ff-green-text mb-1">🌱 Mazinām pārtikas atkritumus</div>
+          <h3 class="ff-display fw-bold mb-2">Latvijā katrs students gadā izmet pārtiku par simtiem eiro</h3>
+          <p class="text-muted fw-light mb-0">FridgeFriend palīdz izmantot to, kas jau ir ledusskapī.</p>
+        </div>
+        <a href="{{ url_for('sastavdalas') }}" class="btn btn-primary btn-lg btn-pill px-4 flex-shrink-0">Izmēģināt →</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

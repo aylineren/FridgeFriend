@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Pieslēgties — FridgeFriend{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width:440px">
+  <div class="card border-0 shadow">
+    <div class="card-body p-5">
+      <div class="text-center mb-4">
+        <div style="font-size:3rem">🥦</div>
+        <h2 class="ff-display fw-bold mt-2 mb-1">Pieslēgties</h2>
+        <p class="text-muted small">Laipni lūgts atpakaļ!</p>
+      </div>
+      <form method="POST">
+        <div class="mb-3">
+          <label class="form-label small fw-semibold">E-pasts</label>
+          <input type="email" name="email" class="form-control" placeholder="tavs@epasts.lv" required autofocus>
+        </div>
+        <div class="mb-4">
+          <label class="form-label small fw-semibold">Parole</label>
+          <div class="input-group">
+            <input type="password" name="password" id="login-pw" class="form-control" placeholder="••••••••" required>
+            <button class="btn btn-outline-secondary" type="button" onclick="togglePw('login-pw','login-eye')">
+              <i class="bi bi-eye" id="login-eye"></i>
+            </button>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-pill w-100 py-2 mb-3">
+          <i class="bi bi-box-arrow-in-right me-2"></i>Pieslēgties
+        </button>
+      </form>
+      <p class="text-center small text-muted mb-0">
+        Nav konta? <a href="{{ url_for('register') }}" class="ff-green-text fw-semibold text-decoration-none">Reģistrēties</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function togglePw(id, iconId) {
+  const el = document.getElementById(id);
+  const icon = document.getElementById(iconId);
+  el.type = el.type === 'password' ? 'text' : 'password';
+  icon.className = el.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash';
+}
+</script>
+{% endblock %}

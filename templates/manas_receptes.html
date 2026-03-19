@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Manas receptes — FridgeFriend{% endblock %}
+{% block content %}
+<div class="container-xl py-5">
+  <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+    <div>
+      <h1 class="ff-display fw-bold mb-1">📝 Manas receptes</h1>
+      <p class="text-muted mb-0">Receptes, ko tu esi izveidojis</p>
+    </div>
+    <a href="{{ url_for('izveidot_recepti') }}" class="btn btn-primary btn-pill px-4">
+      <i class="bi bi-plus-lg me-1"></i>Izveidot recepti
+    </a>
+  </div>
+
+  {% if not my_recipes %}
+  <div class="text-center py-5 card border-0">
+    <div style="font-size:3.5rem" class="mb-3">📝</div>
+    <h4 class="ff-display fw-bold">Vēl nav recepšu</h4>
+    <p class="text-muted mb-4">Izveido savu pirmo recepti!</p>
+    <a href="{{ url_for('izveidot_recepti') }}" class="btn btn-primary btn-pill px-4">Izveidot recepti</a>
+  </div>
+  {% else %}
+  <div class="row g-4">
+    {% for recipe in my_recipes %}
+    <div class="col-md-4">
+      <div class="card h-100 border-0 shadow-sm">
+        <div class="ff-emoji-area green" style="height:120px;border-radius:.375rem .375rem 0 0;font-size:3rem">{{ recipe.emoji }}</div>
+        <div class="card-body">
+          <h5 class="ff-display fw-bold mb-2">{{ recipe.name }}</h5>
+          <div class="d-flex flex-wrap gap-1 mb-3">
+            {% if recipe.is_official %}
+            <span class="badge badge-official rounded-pill">✅ Publicēta</span>
+            {% else %}
+            <span class="badge badge-user rounded-pill">⏳ Gaida apstiprināšanu</span>
+            {% endif %}
+            <span class="badge rounded-pill" style="background:var(--ff-green-pale);color:var(--ff-green)">⏱ {{ recipe.time_minutes }} min</span>
+            <span class="badge rounded-pill" style="background:var(--ff-orange-pale);color:var(--ff-orange)">💰 {{ "%.2f"|format(recipe.cost_eur) }}€</span>
+          </div>
+          <div class="d-flex gap-2">
+            <a href="{{ url_for('recepte', recipe_id=recipe.id) }}" class="btn btn-outline-primary btn-sm btn-pill flex-grow-1">Skatīt</a>
+            <a href="{{ url_for('rediget_recepti', recipe_id=recipe.id) }}" class="btn btn-outline-secondary btn-sm btn-pill">
+              <i class="bi bi-pencil"></i>
+            </a>
+            <form method="POST" action="{{ url_for('dzest_recepti', recipe_id=recipe.id) }}" class="m-0">
+              <button type="submit" class="btn btn-outline-danger btn-sm btn-pill" onclick="return confirm('Dzēst recepti?')">
+                <i class="bi bi-trash3"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

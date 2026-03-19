@@ -1,0 +1,498 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,800;1,300&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+/* Krāsas un mainīgie */
+:root {
+  --ff-green: #3D6B4F;
+  --ff-green-light: #5A8C6A;
+  --ff-green-pale: #E8F0EB;
+  --ff-orange: #E07A3A;
+  --ff-orange-pale: #FEF0E6;
+  --ff-cream: #FAF6EE;
+  --ff-border: #E8E0D5;
+  --bs-primary: #3D6B4F;
+  --bs-primary-rgb: 61,107,79;
+  --bs-body-font-family: 'DM Sans', sans-serif;
+  --bs-body-bg: #FAF6EE;
+}
+
+/* Tumšais režīms */
+[data-bs-theme="dark"] {
+  --bs-body-bg: #1a1f1f;
+  --bs-body-color: #e8f0eb;
+  --ff-cream: #1a1f1c;
+  --ff-border: #2e3830;
+}
+
+[data-bs-theme="dark"] .navbar {
+  background: #111818 !important;
+  border-bottom-color: #2e3830;
+}
+
+[data-bs-theme="dark"] .card {
+  background: #242a2b;
+  border-color: #2e3835;
+}
+
+[data-bs-theme="dark"] .ff-hero {
+  background: linear-gradient(135deg, #1a252e 0%, #0f1a12 100%) !important;
+}
+
+[data-bs-theme="dark"] .ff-stats {
+  background: #111815;
+}
+
+[data-bs-theme="dark"] .ff-sidebar-card {
+  background: #1e2820;
+  border-color: #2e3830;
+}
+
+[data-bs-theme="dark"] .ing-label {
+  background: #1e2828;
+  border-color: #2e3830;
+  color: #cde0d3;
+}
+
+[data-bs-theme="dark"] .ing-label:hover {
+  background: #253226;
+}
+
+[data-bs-theme="dark"] .fridge-item {
+  background: #1e2820;
+  border-color: #2e3830;
+}
+
+[data-bs-theme="dark"] .recipe-step-row,
+[data-bs-theme="dark"] .recipe-ing-row {
+  background: #1e2820;
+  border-color: #2e3830;
+}
+
+.ff-display {
+  font-family: 'Fraunces', serif;
+}
+
+/* Navigācija */
+.navbar-brand {
+  font-family: 'Fraunces', serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--ff-green) !important;
+}
+
+.navbar {
+  background: #fffdf7;
+  border-bottom: 1.5px solid var(--ff-border);
+}
+
+.nav-link {
+  font-weight: 500;
+  border-radius: 50px;
+  padding: 6px 14px !important;
+  transition: all .15s;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  background: var(--ff-green-pale);
+  color: var(--ff-green) !important;
+}
+
+.nav-link.btn-orange {
+  background: var(--ff-orange);
+  color: #fff !important;
+  border-radius: 50px;
+}
+
+.nav-link.btn-orange:hover {
+  background: #c96a2c;
+}
+
+/* Pogas */
+.btn-primary {
+  background: var(--ff-green);
+  border-color: var(--ff-green);
+}
+
+.btn-primary:hover {
+  background: var(--ff-green-light);
+  border-color: var(--ff-green-light);
+}
+
+.btn-outline-primary {
+  color: var(--ff-green);
+  border-color: var(--ff-green);
+}
+
+.btn-outline-primary:hover {
+  background: var(--ff-green);
+  color: #fff;
+}
+
+.btn-orange {
+  background: var(--ff-orange);
+  border-color: var(--ff-orange);
+  color: #fff;
+}
+
+.btn-orange:hover {
+  background: #c96a2c;
+  color: #fff;
+}
+
+.btn-pill {
+  border-radius: 50px !important;
+}
+
+/* Galvenā sadaļa */
+.ff-hero {
+  background: linear-gradient(135deg, #e8f0eb 0%, #fef0e6 60%, #faf6ee 100%);
+  padding: 80px 0 60px;
+}
+
+.ff-hero h1 {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(2.2rem, 5vw, 3.8rem);
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.ff-hero em {
+  color: var(--ff-green);
+  font-style: italic;
+}
+
+/* Statistika */
+.ff-stats {
+  background: var(--ff-green);
+  color: #fff;
+  padding: 40px 0;
+}
+
+.ff-stat-num {
+  font-family: 'Fraunces', serif;
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.ff-stat-label {
+  font-size: .875rem;
+  opacity: .8;
+}
+
+/* Receptes kartes */
+.ff-recipe-card {
+  border: 1.5px solid var(--ff-border);
+  transition: transform .2s, box-shadow .2s;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+
+.ff-recipe-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(61,107,79,.15);
+  color: inherit;
+}
+
+.ff-emoji-area {
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  position: relative;
+}
+
+.ff-emoji-area.green {
+  background: var(--ff-green-pale);
+}
+
+.ff-emoji-area.orange {
+  background: var(--ff-orange-pale);
+}
+
+.ff-emoji-area.brown {
+  background: #F5EDE3;
+}
+
+.ff-emoji-area.blue {
+  background: #EFF3FA;
+}
+
+.ff-emoji-area.purple {
+  background: #F3EEFF;
+}
+
+/* Sastāvdaļas */
+.ing-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #fff;
+  border: 2px solid var(--ff-border);
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: .875rem;
+  font-weight: 500;
+  transition: all .15s;
+  user-select: none;
+}
+
+.ing-label:hover {
+  border-color: var(--ff-green);
+  background: var(--ff-green-pale);
+}
+
+.ing-checkbox:checked + .ing-label {
+  border-color: var(--ff-green);
+  background: var(--ff-green-pale);
+  color: var(--ff-green);
+}
+
+.ing-check {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--ff-border);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all .15s;
+  font-size: 11px;
+}
+
+.ing-checkbox:checked + .ing-label .ing-check {
+  background: var(--ff-green);
+  border-color: var(--ff-green);
+  color: #fff;
+}
+
+.ing-checkbox {
+  display: none;
+}
+
+/* Sānu josla */
+.ff-sidebar-card {
+  background: var(--ff-green-pale);
+  border: 1.5px solid #c5d9c5;
+  border-radius: 16px;
+  padding: 24px;
+}
+
+/* Soļi un sastāvdaļas rindas */
+.recipe-step-row,
+.recipe-ing-row {
+  background: #fff;
+  border: 1.5px solid var(--ff-border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+}
+
+.step-num {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--ff-green);
+  color: #fff;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Komentāri un avatari */
+.comment-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--ff-green);
+  color: #fff;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .875rem;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.comment-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-avatar-lg {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: var(--ff-green);
+  color: #fff;
+  font-weight: 800;
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.profile-avatar-lg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-avatar-sm {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--ff-green);
+  color: #fff;
+  font-weight: 700;
+  font-size: .8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.profile-avatar-sm img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Zīmes */
+.badge-official {
+  background: var(--ff-green);
+  color: #fff;
+  font-size: .7rem;
+}
+
+.badge-user {
+  background: var(--ff-orange);
+  color: #fff;
+  font-size: .7rem;
+}
+
+.badge-match {
+  background: var(--ff-green);
+  color: #fff;
+  font-size: .7rem;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+/* Patīk */
+.btn-like {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: transform .15s;
+  padding: 4px 8px;
+}
+
+.btn-like:hover {
+  transform: scale(1.2);
+}
+
+.btn-like.liked {
+  color: #e53935;
+}
+
+/* Tumšais režīms pārslēgs */
+#darkToggle {
+  cursor: pointer;
+  font-size: 1.2rem;
+  background: none;
+  border: none;
+  color: var(--ff-green);
+  padding: 6px 10px;
+  border-radius: 50px;
+}
+
+#darkToggle:hover {
+  background: var(--ff-green-pale);
+}
+
+/* Ledusskapis */
+.fridge-item {
+  border: 1.5px solid var(--ff-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: border-color .15s;
+}
+
+.fridge-item:hover {
+  border-color: var(--ff-green);
+}
+
+/* Krāsas */
+.ff-green-text {
+  color: var(--ff-green) !important;
+}
+
+.ff-orange-text {
+  color: var(--ff-orange) !important;
+}
+
+/* Kājene */
+footer {
+  background: var(--ff-green);
+  color: rgba(255,255,255,.75);
+}
+
+/* Animācijas */
+.page-fade {
+  animation: pageFade .3s ease;
+}
+
+@keyframes pageFade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Tabulas */
+.table-admin td,
+.table-admin th {
+  vertical-align: middle;
+}
+
+/* Navigācijas avatārs */
+.nav-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--ff-green);
+  color: #fff;
+  font-weight: 700;
+  font-size: .8rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.nav-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
