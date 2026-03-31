@@ -3,10 +3,11 @@ Tīmekļa lietotne, kas palīdz atrast labas receptes tieši no tā, kas jau ir 
 Autors: Ailine Erena, 12.B klase
 
 ---
+SAITE: https://ailineren.pythonanywhere.com/
 
 1. POSMA ATSKAITE: https://docs.google.com/document/d/18KIzGt6LViMp8-FTW1ae4AYCkutLShjrLp9XqhYPvl8/edit
    
-3. IZSTRĀDES APRAKSTS: https://docs.google.com/document/d/1aupAsq8I9Oz1zdjv2Tr4YIPgNXj7zffUED_OIflv7Wc/edit
+IZSTRĀDES APRAKSTS: https://docs.google.com/document/d/1aupAsq8I9Oz1zdjv2Tr4YIPgNXj7zffUED_OIflv7Wc/edit
 
 PREZENTĀCIJA:
 
