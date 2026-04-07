@@ -13,6 +13,7 @@ PREZENTĀCIJA:
 
 PORTFOLIO:
 
+Atkļūdošanas un akcepttestēšanas pārskats: https://docs.google.com/document/d/1WL7kbYLXqSyDxuw1NUCOjcSEk0oP2Fjpi7-NrVRt2CM/edit?usp=sharing
 
 ## Projekta struktūra
 
