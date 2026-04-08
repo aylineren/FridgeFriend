@@ -9,7 +9,7 @@ SAITE: https://ailineren.pythonanywhere.com/
    
 IZSTRĀDES APRAKSTS: https://docs.google.com/document/d/1aupAsq8I9Oz1zdjv2Tr4YIPgNXj7zffUED_OIflv7Wc/edit
 
-PREZENTĀCIJA:
+PREZENTĀCIJA: https://docs.google.com/presentation/d/1e85VpUILYqaOzeCUHVW8NViALfid-RAy/edit?usp=sharing&ouid=118446622247324304032&rtpof=true&sd=true
 
 PORTFOLIO:
 
