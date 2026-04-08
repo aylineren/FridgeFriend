@@ -12,7 +12,9 @@ IZSTRĀDES APRAKSTS: https://docs.google.com/document/d/1aupAsq8I9Oz1zdjv2Tr4YIP
 PREZENTĀCIJA:
 
 PORTFOLIO:
-\
+
+Atkļūdošanas un akcepttestēšanas pārskats: https://docs.google.com/document/d/1WL7kbYLXqSyDxuw1NUCOjcSEk0oP2Fjpi7-NrVRt2CM/edit?usp=sharing
+
 
 ## Projekta struktūra
 
