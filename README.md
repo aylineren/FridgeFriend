@@ -7,7 +7,7 @@ SAITE: https://ailineren.pythonanywhere.com/
 
 1. POSMA ATSKAITE: https://docs.google.com/document/d/18KIzGt6LViMp8-FTW1ae4AYCkutLShjrLp9XqhYPvl8/edit
    
-IZSTRĀDES APRAKSTS: https://docs.google.com/document/d/1aupAsq8I9Oz1zdjv2Tr4YIPgNXj7zffUED_OIflv7Wc/edit
+IZSTRĀDES APRAKSTS: https://docs.google.com/document/d/1aupAsq8I9Oz1zdjv2Tr4YIPgNXj7zffUED_OIflv7Wc/edit?usp=sharing
 
 PREZENTĀCIJA: https://docs.google.com/presentation/d/1e85VpUILYqaOzeCUHVW8NViALfid-RAy/edit?usp=sharing&ouid=118446622247324304032&rtpof=true&sd=true
 
