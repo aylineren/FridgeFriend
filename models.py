@@ -3,12 +3,115 @@ FridgeFriend — OOP modeļu slānis
 Visas datubāzes darbības tiek veiktas caur šīm klasēm.
 """
 import os
+import re
 import secrets
 import sqlite3
 import string
 from datetime import datetime
 
 from werkzeug.security import check_password_hash, generate_password_hash
+
+# Validācijas klases
+class ValidationError(Exception):
+    """Validācijas kļūda"""
+    pass
+
+
+class InputValidator:
+    """Ievades datu validācijas klase"""
+
+    @staticmethod
+    def validate_username(username: str) -> bool:
+        """Validē lietotājvārdu (3-12 chars, tikai burti, cipari, '_', '-')"""
+        if not username or len(username) < 3 or len(username) > 12:
+            raise ValidationError("Lietotājvārds jābūt 3-12 rakstzīmes garumā")
+        if not re.match(r'^[a-zA-Z0-9_-]+$', username):
+            raise ValidationError("Lietotājvārdā var būt tikai burti, cipari, '_' un '-'")
+        return True
+
+    @staticmethod
+    def validate_email(email: str) -> bool:
+        """Validē e-pastu (3-30 chars, derīgs e-pasta formāts)"""
+        if not email or len(email) < 3 or len(email) > 30:
+            raise ValidationError("E-pasts jābūt 3-30 rakstzīmes garumā")
+        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_pattern, email):
+            raise ValidationError("Derīgs e-pasta formāts nepieciešams (piemēram: user@example.com)")
+        return True
+
+    @staticmethod
+    def validate_password(password: str) -> bool:
+        """Validē paroli (8-35 chars, ne tikai cipari vai tikai burti)"""
+        if not password or len(password) < 8 or len(password) > 35:
+            raise ValidationError("Parolei jābūt 8-35 rakstzīmes garumā")
+
+        has_digit = any(c.isdigit() for c in password)
+        has_letter = any(c.isalpha() for c in password)
+
+        if not has_digit or not has_letter:
+            raise ValidationError("Parolē jābūt gan burtiem, gan cipariem")
+        return True
+
+    @staticmethod
+    def validate_comment(content: str) -> bool:
+        """Validē komentāru (2-150 chars)"""
+        if not content or len(content) < 2 or len(content) > 150:
+            raise ValidationError("Komentāram jābūt 2-150 rakstzīmes garumā")
+        return True
+
+    @staticmethod
+    def validate_bio(bio: str) -> bool:
+        """Validē biogrāfiju (0-150 chars)"""
+        if bio and len(bio) > 150:
+            raise ValidationError("Biogrāfija ne vairāk par 150 rakstzīmēm")
+        return True
+
+    @staticmethod
+    def validate_product_name(name: str) -> bool:
+        """Validē produkta nosaukumu (0-25 chars, tikai burti, cipari, ' ', '-')"""
+        if not name:
+            raise ValidationError("Produkta nosaukums nedrīkst būt tukšs")
+        if len(name) > 25:
+            raise ValidationError("Produkta nosaukums ne vairāk par 25 rakstzīmēm")
+        if not re.match(r'^[a-zA-Z0-9\s-]+$', name):
+            raise ValidationError("Produkta nosaukumā var būt tikai burti, cipari, atstarpe un '-'")
+        return True
+
+    @staticmethod
+    def validate_emoji(emoji: str, max_count: int = 2) -> bool:
+        """Validē emoji (0-2 emoji, nekas cits)"""
+        if not emoji:
+            return True  # Emoji ir neobligāts
+
+        # Uzskaita emoji skaitu
+        emoji_pattern = r'[\U0001F300-\U0001F9FF]|[\u2600-\u27BF]|[\U0001F600-\U0001F64F]'
+        emoji_matches = len(re.findall(emoji_pattern, emoji))
+
+        # Pārbauda vai nav nekas cits, tikai emoji
+        if emoji != ''.join(re.findall(r'[\U0001F300-\U0001F9FF]|[\u2600-\u27BF]|[\U0001F600-\U0001F64F]|[\U0001F900-\U0001F9FF]|[\U0001F680-\U0001F6FF]', emoji)):
+            pass
+
+        if emoji_matches > max_count:
+            raise ValidationError(f"Maksimālais emoji skaits: {max_count}")
+        return True
+
+    @staticmethod
+    def validate_recipe_name(name: str) -> bool:
+        """Validē receptes nosaukumu (0-25 chars, tikai burti, cipari, ' ', '-', '!')"""
+        if not name:
+            raise ValidationError("Receptes nosaukums nedrīkst būt tukšs")
+        if len(name) > 25:
+            raise ValidationError("Receptes nosaukums ne vairāk par 25 rakstzīmēm")
+        if not re.match(r'^[a-zA-Z0-9\s\-!]+$', name):
+            raise ValidationError("Receptes nosaukumā var būt tikai burti, cipari, atstarpe, '-' un '!'")
+        return True
+
+    @staticmethod
+    def validate_display_name(name: str) -> bool:
+        """Validē parādāmo vārdu (0-50 chars)"""
+        if name and len(name) > 50:
+            raise ValidationError("Parādāmais vārds ne vairāk par 50 rakstzīmēm")
+        return True
 
 DB_PATH = os.environ.get('FF_DB', 'fridgefriend.db')
 UPLOAD_FOLDER = os.path.join('static', 'uploads', 'avatars')
@@ -177,11 +280,19 @@ class UserModel:
         self.db = Database.get()
 
     def create(self, username, email, password, is_admin=0):
+        username = username.strip()
+        email = email.strip().lower()
+
+        # Validē ievades
+        InputValidator.validate_username(username)
+        InputValidator.validate_email(email)
+        InputValidator.validate_password(password)
+
         hashed = PasswordUtils.hash(password)
         try:
             return self.db.execute(
                 "INSERT INTO users (username,email,password_hash,is_admin) VALUES (?,?,?,?)",
-                (username.strip(), email.strip().lower(), hashed, is_admin)
+                (username, email, hashed, is_admin)
             )
         except sqlite3.IntegrityError:
             return None
@@ -204,16 +315,30 @@ class UserModel:
         return self.db.fetchall("SELECT * FROM users ORDER BY created_at DESC")
 
     def update_profile(self, uid, display_name, bio, username, email):
+        display_name = display_name.strip()
+        bio = bio.strip()
+        username = username.strip()
+        email = email.strip().lower()
+
+        # Validē ievades
+        InputValidator.validate_display_name(display_name)
+        InputValidator.validate_bio(bio)
+        InputValidator.validate_username(username)
+        InputValidator.validate_email(email)
+
         try:
             self.db.execute(
                 "UPDATE users SET display_name=?,bio=?,username=?,email=? WHERE id=?",
-                (display_name, bio, username, email.lower(), uid)
+                (display_name, bio, username, email, uid)
             )
             return True
         except sqlite3.IntegrityError:
             return False
 
     def update_password(self, uid, new_password):
+        # Validē jauno paroli
+        InputValidator.validate_password(new_password)
+
         self.db.execute(
             "UPDATE users SET password_hash=? WHERE id=?",
             (PasswordUtils.hash(new_password), uid)
@@ -238,6 +363,13 @@ class RecipeModel:
 
     def create(self, name, emoji, time_minutes, cost_eur, difficulty,
                serves, tip, description, created_by=None, is_official=1, is_public=1):
+        name = name.strip()
+        emoji = emoji.strip() if emoji else '🍽️'
+
+        # Validē receptes nosaukumu un emoji
+        InputValidator.validate_recipe_name(name)
+        InputValidator.validate_emoji(emoji, max_count=2)
+
         return self.db.execute(
             '''INSERT INTO recipes
                (name,emoji,time_minutes,cost_eur,difficulty,serves,tip,
@@ -308,6 +440,13 @@ class RecipeModel:
 
     def update(self, rid, name, emoji, time_minutes, cost_eur,
                difficulty, serves, tip, description):
+        name = name.strip()
+        emoji = emoji.strip() if emoji else '🍽️'
+
+        # Validē receptes nosaukumu un emoji
+        InputValidator.validate_recipe_name(name)
+        InputValidator.validate_emoji(emoji, max_count=2)
+
         self.db.execute(
             '''UPDATE recipes SET name=?,emoji=?,time_minutes=?,cost_eur=?,
                difficulty=?,serves=?,tip=?,description=? WHERE id=?''',
@@ -376,9 +515,14 @@ class CommentModel:
         self.db = Database.get()
 
     def add(self, user_id, recipe_id, content):
+        content = content.strip()
+
+        # Validē komentāru
+        InputValidator.validate_comment(content)
+
         return self.db.execute(
             "INSERT INTO comments (user_id,recipe_id,content) VALUES (?,?,?)",
-            (user_id, recipe_id, content.strip())
+            (user_id, recipe_id, content)
         )
 
     def get_for_recipe(self, recipe_id):
@@ -489,9 +633,16 @@ class FridgeModel:
         self.db = Database.get()
 
     def add(self, user_id, name, emoji='🛒', expiry=None):
+        name = name.strip()
+        emoji = emoji.strip() if emoji else '🛒'
+
+        # Validē produkta nosaukumu un emoji
+        InputValidator.validate_product_name(name)
+        InputValidator.validate_emoji(emoji, max_count=2)
+
         return self.db.execute(
             "INSERT INTO user_fridge (user_id,ingredient_name,emoji,expiry_date) VALUES (?,?,?,?)",
-            (user_id, name.strip(), emoji, expiry or None)
+            (user_id, name, emoji, expiry or None)
         )
 
     def delete(self, item_id, user_id):

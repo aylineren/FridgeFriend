@@ -9,7 +9,7 @@ from flask import (Flask, render_template, request, redirect, url_for,
                    session, jsonify, flash)
 from models import (Database, UserModel, RecipeModel, CommentModel,
                     LikeModel, FavoriteModel, FridgeModel, IngredientModel,
-                    PasswordUtils, UPLOAD_FOLDER, ALLOWED_EXTENSIONS)
+                    PasswordUtils, ValidationError, UPLOAD_FOLDER, ALLOWED_EXTENSIONS)
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(32))
@@ -94,7 +94,7 @@ def mann_nav():
     cheap = sorted(recipes.get_all_public(), key=lambda r: r['cost_eur'])[:3]
     return render_template('mannav.html', cheap_recipes=cheap)
 
-# ── ledusskapis ──
+# ledusskapis 
 @app.route('/mans-ledusskapis')
 def mans_ledusskapis():
     user = get_current_user()
@@ -104,8 +104,11 @@ def mans_ledusskapis():
 @app.route('/mans-ledusskapis/pievienot', methods=['POST'])
 @login_required
 def add_fridge_item():
-    fridge.add(session['user_id'], request.form.get('name','').strip(),
-               request.form.get('emoji','🛒'), request.form.get('expiry') or None)
+    try:
+        fridge.add(session['user_id'], request.form.get('name','').strip(),
+                   request.form.get('emoji','🛒'), request.form.get('expiry') or None)
+    except ValidationError as e:
+        flash(str(e), 'danger')
     return redirect(url_for('mans_ledusskapis'))
 
 @app.route('/mans-ledusskapis/dzest/<int:item_id>', methods=['POST'])
@@ -114,7 +117,7 @@ def delete_fridge_item(item_id):
     fridge.delete(item_id, session['user_id'])
     return redirect(url_for('mans_ledusskapis'))
 
-# ── patikumi un izlase ──
+# patikumi un izlase
 @app.route('/recepte/<int:recipe_id>/patik', methods=['POST'])
 @login_required
 def toggle_like(recipe_id):
@@ -141,9 +144,12 @@ def izlase():
 @app.route('/recepte/<int:recipe_id>/komentars', methods=['POST'])
 @login_required
 def add_comment(recipe_id):
-    content = request.form.get('content','').strip()
-    if content:
-        comments.add(session['user_id'], recipe_id, content)
+    try:
+        content = request.form.get('content','').strip()
+        if content:
+            comments.add(session['user_id'], recipe_id, content)
+    except ValidationError as e:
+        flash(str(e), 'danger')
     return redirect(url_for('recepte', recipe_id=recipe_id) + '#comments')
 
 @app.route('/komentars/<int:comment_id>/dzest', methods=['POST'])
@@ -184,17 +190,20 @@ def _save_recipe_form(recipe_id):
 @login_required
 def izveidot_recepti():
     if request.method == 'POST':
-        recipe_id = recipes.create(
-            name=request.form['name'], emoji=request.form.get('emoji','🍽️'),
-            time_minutes=int(request.form.get('time_minutes',15)),
-            cost_eur=float(request.form.get('cost_eur',1.0)),
-            difficulty=request.form.get('difficulty','Viegli'),
-            serves=request.form.get('serves','1 porcija'),
-            tip=request.form.get('tip',''), description=request.form.get('description',''),
-            created_by=session['user_id'], is_official=0, is_public=0)
-        _save_recipe_form(recipe_id)
-        flash('Recepte izveidota! Redzama pēc administratora apstiprināšanas.', 'success')
-        return redirect(url_for('manas_receptes'))
+        try:
+            recipe_id = recipes.create(
+                name=request.form['name'], emoji=request.form.get('emoji','🍽️'),
+                time_minutes=int(request.form.get('time_minutes',15)),
+                cost_eur=float(request.form.get('cost_eur',1.0)),
+                difficulty=request.form.get('difficulty','Viegli'),
+                serves=request.form.get('serves','1 porcija'),
+                tip=request.form.get('tip',''), description=request.form.get('description',''),
+                created_by=session['user_id'], is_official=0, is_public=0)
+            _save_recipe_form(recipe_id)
+            flash('Recepte izveidota! Redzama pēc administratora apstiprināšanas.', 'success')
+            return redirect(url_for('manas_receptes'))
+        except ValidationError as e:
+            flash(str(e), 'danger')
     return render_template('izveidot_recepti.html')
 
 @app.route('/recepte/<int:recipe_id>/rediget', methods=['GET', 'POST'])
@@ -206,16 +215,19 @@ def rediget_recepti(recipe_id):
         flash('Nav atļauts.', 'danger')
         return redirect(url_for('sakums'))
     if request.method == 'POST':
-        recipes.update(recipe_id,
-            name=request.form['name'], emoji=request.form.get('emoji','🍽️'),
-            time_minutes=int(request.form.get('time_minutes',15)),
-            cost_eur=float(request.form.get('cost_eur',1.0)),
-            difficulty=request.form.get('difficulty','Viegli'),
-            serves=request.form.get('serves','1 porcija'),
-            tip=request.form.get('tip',''), description=request.form.get('description',''))
-        _save_recipe_form(recipe_id)
-        flash('Recepte atjaunināta!', 'success')
-        return redirect(url_for('recepte', recipe_id=recipe_id))
+        try:
+            recipes.update(recipe_id,
+                name=request.form['name'], emoji=request.form.get('emoji','🍽️'),
+                time_minutes=int(request.form.get('time_minutes',15)),
+                cost_eur=float(request.form.get('cost_eur',1.0)),
+                difficulty=request.form.get('difficulty','Viegli'),
+                serves=request.form.get('serves','1 porcija'),
+                tip=request.form.get('tip',''), description=request.form.get('description',''))
+            _save_recipe_form(recipe_id)
+            flash('Recepte atjaunināta!', 'success')
+            return redirect(url_for('recepte', recipe_id=recipe_id))
+        except ValidationError as e:
+            flash(str(e), 'danger')
     return render_template('izveidot_recepti.html', recipe=recipe,
                            r_ings=recipes.get_ingredients(recipe_id),
                            r_steps=recipes.get_steps(recipe_id))
@@ -237,31 +249,34 @@ def profils():
     user = get_current_user()
     if request.method == 'POST':
         action = request.form.get('action')
-        if action == 'profile':
-            ok = users.update_profile(user['id'],
-                request.form.get('display_name','').strip(),
-                request.form.get('bio','').strip(),
-                request.form.get('username','').strip(),
-                request.form.get('email','').strip())
-            flash('Profils atjaunināts!' if ok else 'Lietotājvārds vai e-pasts aizņemts.', 'success' if ok else 'danger')
-        elif action == 'password':
-            curr = request.form.get('current_password','')
-            new_pw = request.form.get('new_password','')
-            if PasswordUtils.verify(curr, user['password_hash']):
-                users.update_password(user['id'], new_pw)
-                flash('Parole mainīta!', 'success')
-            else:
-                flash('Nepareiza pašreizējā parole.', 'danger')
-        elif action == 'avatar':
-            f = request.files.get('avatar')
-            if f and f.filename and allowed_file(f.filename):
-                ext = f.filename.rsplit('.', 1)[1].lower()
-                fname = f'user_{user["id"]}.{ext}'
-                f.save(os.path.join(app.config['UPLOAD_FOLDER'], fname))
-                users.update_avatar(user['id'], fname)
-                flash('Profila attēls atjaunināts!', 'success')
-            else:
-                flash('Nederīgs fails.', 'danger')
+        try:
+            if action == 'profile':
+                ok = users.update_profile(user['id'],
+                    request.form.get('display_name','').strip(),
+                    request.form.get('bio','').strip(),
+                    request.form.get('username','').strip(),
+                    request.form.get('email','').strip())
+                flash('Profils atjaunināts!' if ok else 'Lietotājvārds vai e-pasts aizņemts.', 'success' if ok else 'danger')
+            elif action == 'password':
+                curr = request.form.get('current_password','')
+                new_pw = request.form.get('new_password','')
+                if PasswordUtils.verify(curr, user['password_hash']):
+                    users.update_password(user['id'], new_pw)
+                    flash('Parole mainīta!', 'success')
+                else:
+                    flash('Nepareiza pašreizējā parole.', 'danger')
+            elif action == 'avatar':
+                f = request.files.get('avatar')
+                if f and f.filename and allowed_file(f.filename):
+                    ext = f.filename.rsplit('.', 1)[1].lower()
+                    fname = f'user_{user["id"]}.{ext}'
+                    f.save(os.path.join(app.config['UPLOAD_FOLDER'], fname))
+                    users.update_avatar(user['id'], fname)
+                    flash('Profila attēls atjaunināts!', 'success')
+                else:
+                    flash('Nederīgs fails.', 'danger')
+        except ValidationError as e:
+            flash(str(e), 'danger')
         return redirect(url_for('profils'))
     return render_template('profils.html', user=user)
 
@@ -334,17 +349,20 @@ def admin_dzest_sastavdalu(ing_id):
 @admin_required
 def admin_jauna_recepte():
     if request.method == 'POST':
-        rid = recipes.create(
-            name=request.form['name'], emoji=request.form.get('emoji','🍽️'),
-            time_minutes=int(request.form.get('time_minutes',15)),
-            cost_eur=float(request.form.get('cost_eur',1.0)),
-            difficulty=request.form.get('difficulty','Viegli'),
-            serves=request.form.get('serves','1 porcija'),
-            tip=request.form.get('tip',''), description=request.form.get('description',''),
-            created_by=session['user_id'], is_official=1, is_public=1)
-        _save_recipe_form(rid)
-        flash('Recepte izveidota!', 'success')
-        return redirect(url_for('admin_index') + '#recipes')
+        try:
+            rid = recipes.create(
+                name=request.form['name'], emoji=request.form.get('emoji','🍽️'),
+                time_minutes=int(request.form.get('time_minutes',15)),
+                cost_eur=float(request.form.get('cost_eur',1.0)),
+                difficulty=request.form.get('difficulty','Viegli'),
+                serves=request.form.get('serves','1 porcija'),
+                tip=request.form.get('tip',''), description=request.form.get('description',''),
+                created_by=session['user_id'], is_official=1, is_public=1)
+            _save_recipe_form(rid)
+            flash('Recepte izveidota!', 'success')
+            return redirect(url_for('admin_index') + '#recipes')
+        except ValidationError as e:
+            flash(str(e), 'danger')
     return render_template('izveidot_recepti.html', admin_mode=True)
 
 # autorizacija 
@@ -362,12 +380,15 @@ def login():
 @app.route('/registreties', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        uid = users.create(request.form['username'], request.form['email'], request.form['password'])
-        if uid:
-            session['user_id'] = uid
-            flash('Konts izveidots!', 'success')
-            return redirect(url_for('sakums'))
-        flash('Lietotājvārds vai e-pasts jau eksistē.', 'danger')
+        try:
+            uid = users.create(request.form['username'], request.form['email'], request.form['password'])
+            if uid:
+                session['user_id'] = uid
+                flash('Konts izveidots!', 'success')
+                return redirect(url_for('sakums'))
+            flash('Lietotājvārds vai e-pasts jau eksistē.', 'danger')
+        except ValidationError as e:
+            flash(str(e), 'danger')
     return render_template('register.html')
 
 @app.route('/iziet')
