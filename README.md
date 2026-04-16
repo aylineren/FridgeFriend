@@ -4,16 +4,12 @@ Autors: Ailine Erena, 12.B klase
 
 ---
 SAITE: https://ailineren.pythonanywhere.com/
-
-1. POSMA ATSKAITE: https://docs.google.com/document/d/18KIzGt6LViMp8-FTW1ae4AYCkutLShjrLp9XqhYPvl8/edit
    
 IZSTRĀDES APRAKSTS: https://docs.google.com/document/d/1aupAsq8I9Oz1zdjv2Tr4YIPgNXj7zffUED_OIflv7Wc/edit?usp=sharing
 
-PREZENTĀCIJA: https://docs.google.com/presentation/d/1e85VpUILYqaOzeCUHVW8NViALfid-RAy/edit?usp=sharing&ouid=118446622247324304032&rtpof=true&sd=true
-
-PORTFOLIO:
-
 Atkļūdošanas un akcepttestēšanas pārskats: https://docs.google.com/document/d/1WL7kbYLXqSyDxuw1NUCOjcSEk0oP2Fjpi7-NrVRt2CM/edit?usp=sharing
+
+Lietotāja ceļvedis: https://docs.google.com/document/d/1cSBh7Xo8XfAMv1hxZB5HuyIpnjgc8r_D9WRI4vipGdQ/edit?usp=sharing
 
 
 ## Projekta struktūra
